@@ -1,0 +1,1491 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<title>토리레쓰 (ToriReaths) - 나만의 스레드 제휴 스튜디오</title>
+<meta name="description" content="스레드 제휴 글쓰기 스튜디오 - 멀티에디터, 페르소나, 제휴 댓글 템플릿, 역대가 카드 생성기" />
+<meta name="theme-color" content="#10b981" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="토리레쓰" />
+<link rel="apple-touch-icon" sizes="180x180" href="icon-180.png" />
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
+<link rel="manifest" href="manifest.json" />
+<style>
+  :root {
+    --mint: #12d39d;
+    --mint-dark: #0bb887;
+    --mint-soft: #e9fbf5;
+    --bg: #f6f8fa;
+    --card: #ffffff;
+    --text: #181c24;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --danger: #ef4444;
+    --warn: #f59e0b;
+    --radius: 16px;
+    --shadow: 0 2px 12px rgba(16, 24, 40, 0.05);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+  button, input, textarea, select { font: inherit; color: inherit; }
+  button { cursor: pointer; border: none; background: none; }
+
+  .app { display: flex; min-height: 100vh; }
+  /* Sidebar */
+  .sidebar {
+    width: 248px;
+    background: var(--card);
+    border-right: 1px solid var(--border);
+    padding: 20px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    flex-shrink: 0;
+  }
+  .brand {
+    display: flex; align-items: center; gap: 10px;
+    padding: 6px 10px 14px;
+    font-weight: 800; font-size: 20px; letter-spacing: -0.5px;
+  }
+  .brand-logo {
+    width: 34px; height: 34px; border-radius: 10px;
+    background: linear-gradient(135deg, #111827 0%, #0d9488 100%);
+    color: #fff; display: grid; place-items: center; font-weight: 900; font-size: 16px;
+  }
+  .cta-main {
+    background: linear-gradient(135deg, var(--mint) 0%, #0ec995 100%);
+    color: #fff; font-weight: 700; font-size: 14px;
+    padding: 12px 16px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    box-shadow: 0 4px 12px rgba(18, 211, 157, 0.25);
+    margin-bottom: 10px;
+  }
+  .cta-main:hover { filter: brightness(0.97); }
+  .nav-group-label {
+    font-size: 11px; font-weight: 700; color: var(--muted);
+    padding: 10px 12px 4px;
+  }
+  .nav-btn {
+    width: 100%; text-align: left;
+    padding: 10px 12px; border-radius: 10px;
+    font-size: 14px; font-weight: 600; color: #374151;
+    display: flex; align-items: center; gap: 10px;
+    transition: background .15s, color .15s;
+  }
+  .nav-btn:hover { background: #f3f4f6; }
+  .nav-btn.active { background: var(--mint-soft); color: #059669; font-weight: 700; }
+  .sidebar-footer {
+    margin-top: auto;
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+    font-size: 12px; color: var(--muted);
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .status-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--mint-soft); color: #047857;
+    padding: 6px 10px; border-radius: 999px; font-weight: 700; font-size: 12px;
+  }
+
+  /* Mobile Header */
+  .mobile-bar {
+    display: none;
+    position: sticky; top: 0; z-index: 30;
+    background: var(--card); border-bottom: 1px solid var(--border);
+    padding: 12px 16px; align-items: center; justify-content: space-between;
+  }
+  .mobile-tabs {
+    display: none;
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 30;
+    background: var(--card); border-top: 1px solid var(--border);
+    padding: 6px 4px; justify-content: space-around;
+  }
+  .mobile-tabs button {
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    font-size: 11px; font-weight: 600; color: var(--muted); padding: 4px 8px; border-radius: 8px;
+  }
+  .mobile-tabs button.active { color: #059669; }
+
+  /* Main */
+  .main { flex: 1; padding: 28px 32px 60px; max-width: 1160px; width: 100%; margin: 0 auto; }
+  .page { display: none; }
+  .page.active { display: block; animation: fadeIn .18s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+  .page-header { margin-bottom: 22px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+  .page-title { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
+  .page-sub { font-size: 14px; color: var(--muted); margin-top: 4px; }
+
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow);
+  }
+  .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+
+  .btn {
+    padding: 9px 15px; border-radius: 10px; font-weight: 700; font-size: 13px;
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    transition: all .15s;
+  }
+  .btn-primary { background: var(--mint); color: #fff; }
+  .btn-primary:hover { background: var(--mint-dark); }
+  .btn-outline { background: #fff; border: 1px solid var(--border); color: var(--text); }
+  .btn-outline:hover { background: #f9fafb; }
+  .btn-soft { background: var(--mint-soft); color: #047857; }
+  .btn-danger { background: #fef2f2; color: var(--danger); }
+  .btn-sm { padding: 6px 10px; font-size: 12px; border-radius: 8px; }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 8px; border-radius: 999px; font-size: 11px; font-weight: 700;
+    background: #f3f4f6; color: #4b5563;
+  }
+  .badge-mint { background: var(--mint-soft); color: #047857; }
+  .badge-warn { background: #fef3c7; color: #b45309; }
+  .badge-blue { background: #eff6ff; color: #1d4ed8; }
+
+  .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+  .field label { font-size: 13px; font-weight: 700; color: #374151; display: flex; align-items: center; gap: 6px; }
+  .input, textarea.input, select.input {
+    width: 100%; padding: 10px 12px; border: 1px solid var(--border);
+    border-radius: 10px; background: #fff; font-size: 14px;
+    outline: none; transition: border-color .15s;
+  }
+  .input:focus { border-color: var(--mint); box-shadow: 0 0 0 3px rgba(18, 211, 157, 0.12); }
+  textarea.input { resize: vertical; min-height: 96px; }
+
+  /* Stepper */
+  .stepper {
+    display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap;
+  }
+  .step-pill {
+    flex: 1; min-width: 110px;
+    padding: 10px 14px; border-radius: 12px;
+    background: #fff; border: 1px solid var(--border);
+    font-size: 13px; font-weight: 700; color: var(--muted);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .step-pill.active { border-color: var(--mint); background: var(--mint-soft); color: #047857; }
+  .step-pill.done { color: var(--text); border-color: #a7f3d0; }
+  .step-num {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: #e5e7eb; color: #4b5563; font-size: 12px;
+    display: grid; place-items: center; font-weight: 800;
+  }
+  .step-pill.active .step-num { background: var(--mint); color: #fff; }
+  .step-pill.done .step-num { background: #10b981; color: #fff; }
+
+  /* Account / Persona Chips */
+  .acc-chip {
+    border: 2px solid var(--border); border-radius: 14px; padding: 12px 14px;
+    display: flex; align-items: center; gap: 10px; background: #fff;
+    transition: all .15s; text-align: left; width: 100%;
+  }
+  .acc-chip.selected { border-color: var(--mint); background: var(--mint-soft); }
+  .avatar {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #fff; display: grid; place-items: center; font-weight: 800; font-size: 15px;
+    flex-shrink: 0;
+  }
+
+  /* Threads Preview */
+  .threads-preview {
+    border: 1px solid var(--border); border-radius: 16px; padding: 16px;
+    background: #fff;
+  }
+  .tp-row { display: flex; gap: 12px; }
+  .tp-line {
+    width: 2px; background: #e5e7eb; margin: 6px auto; flex: 1; min-height: 24px;
+  }
+  .tp-body { flex: 1; font-size: 14px; white-space: pre-wrap; word-break: break-word; }
+  .tp-handle { font-weight: 800; font-size: 14px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+  .tp-actions { display: flex; gap: 12px; margin-top: 10px; color: var(--muted); font-size: 13px; }
+
+  .chip-bar { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+  .var-chip {
+    padding: 5px 10px; border-radius: 999px; font-size: 12px; font-weight: 700;
+    background: #f3f4f6; color: #374151; border: 1px solid #e5e7eb;
+  }
+  .var-chip:hover { background: var(--mint-soft); border-color: var(--mint); color: #047857; }
+
+  .toast {
+    position: fixed; bottom: 24px; right: 24px; z-index: 100;
+    background: #111827; color: #fff; padding: 12px 18px;
+    border-radius: 12px; font-size: 13px; font-weight: 700;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s;
+    transform: translateY(10px);
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    .mobile-bar { display: flex; padding-top: calc(12px + env(safe-area-inset-top)); }
+    .mobile-tabs { display: flex; padding-bottom: calc(6px + env(safe-area-inset-bottom)); }
+    .main { padding: 18px 14px calc(96px + env(safe-area-inset-bottom)); }
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+    body { -webkit-text-size-adjust: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<div class="mobile-bar">
+  <div style="display:flex;align-items:center;gap:8px;font-weight:800;font-size:17px;">
+    <div class="brand-logo" style="width:28px;height:28px;font-size:13px;">T</div>
+    토리레쓰
+  </div>
+  <button class="btn btn-primary btn-sm" onclick="go('editor')">✨ 새 글 쓰기</button>
+</div>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-logo">T</div>
+      <span>ToriReaths</span>
+    </div>
+    <button class="cta-main" onclick="go('editor')">✨ 스마트 멀티에디터</button>
+
+    <div class="nav-group-label">운영</div>
+    <button class="nav-btn active" data-page="home" onclick="go('home')">🏠 홈</button>
+    <button class="nav-btn" data-page="posts" onclick="go('posts')">📦 내 게시물 보관함</button>
+    <button class="nav-btn" data-page="accounts" onclick="go('accounts')">👤 쓰레드 계정 관리</button>
+    <button class="nav-btn" data-page="personas" onclick="go('personas')">🎭 페르소나 관리</button>
+    <button class="nav-btn" data-page="comments" onclick="go('comments')">💬 제휴 댓글 관리</button>
+
+    <div class="nav-group-label">글감 &amp; 카드</div>
+    <button class="nav-btn" data-page="trends" onclick="go('trends')">🔥 트렌드 &amp; 글감</button>
+    <button class="nav-btn" data-page="pricecard" onclick="go('pricecard')">📊 역대가 카드 생성기</button>
+
+    <div class="nav-group-label">설정</div>
+    <button class="nav-btn" data-page="settings" onclick="go('settings')">⚙️ AI 키 · 백업</button>
+
+    <div class="sidebar-footer">
+      <div class="status-pill" id="sidebarStatus">● 계정 0개</div>
+      <div>로컬 저장 · 내 브라우저에만</div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <!-- 1. HOME -->
+    <section id="page-home" class="page active">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">안녕하세요 👋</h1>
+          <p class="page-sub">드레쓰 구조 그대로, 내 브라우저에서 바로 쓰는 스레드 제휴 스튜디오예요.</p>
+        </div>
+        <button class="btn btn-primary" onclick="go('editor')">✨ 멀티에디터 시작하기</button>
+      </div>
+
+      <div class="card" id="onboardCard" style="margin-bottom:18px;border:1px solid var(--mint);background:var(--mint-soft);">
+        <h2 style="font-size:16px;font-weight:800;margin-bottom:6px;">먼저 스레드 계정을 등록해 주세요</h2>
+        <p style="font-size:13px;color:#065f46;margin-bottom:12px;">핸들만 넣으면 끝이에요. 입력한 계정은 <b>이 기기 브라우저(localStorage)에만</b> 저장되고 서버로 전송되지 않아요.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <input class="input" id="onboardHandle" placeholder="@my_threads_id" style="flex:2;min-width:160px;" />
+          <input class="input" id="onboardRole" placeholder="역할 (예: 생활템/핫딜)" style="flex:2;min-width:140px;" />
+          <button class="btn btn-primary" onclick="addAccountFrom('onboardHandle','onboardRole')">+ 계정 추가</button>
+        </div>
+      </div>
+
+      <div class="grid-4" style="margin-bottom:18px;">
+        <div class="card">
+          <div style="font-size:12px;color:var(--muted);font-weight:700;">연결된 계정</div>
+          <div style="font-size:26px;font-weight:800;margin-top:4px;" id="statAccounts">0개</div>
+        </div>
+        <div class="card">
+          <div style="font-size:12px;color:var(--muted);font-weight:700;">보관함 전체</div>
+          <div style="font-size:26px;font-weight:800;margin-top:4px;" id="statPosts">0건</div>
+        </div>
+        <div class="card">
+          <div style="font-size:12px;color:var(--muted);font-weight:700;">예약 대기</div>
+          <div style="font-size:26px;font-weight:800;margin-top:4px;color:#059669;" id="statScheduled">0건</div>
+        </div>
+        <div class="card">
+          <div style="font-size:12px;color:var(--muted);font-weight:700;">등록 페르소나</div>
+          <div style="font-size:26px;font-weight:800;margin-top:4px;" id="statPersonas">5개</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <h2 style="font-size:16px;font-weight:800;">내 Threads 계정</h2>
+            <button class="btn btn-outline btn-sm" onclick="go('accounts')">관리</button>
+          </div>
+          <div id="homeAccountList" style="display:flex;flex-direction:column;gap:10px;"></div>
+        </div>
+
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <h2 style="font-size:16px;font-weight:800;">빠른 작업</h2>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <button class="btn btn-soft" style="justify-content:flex-start;padding:12px 14px;" onclick="go('editor')">✨ 한 번에 3개 계정 제휴 글 + 댓글 타래 만들기</button>
+            <button class="btn btn-outline" style="justify-content:flex-start;padding:12px 14px;" onclick="go('pricecard')">📊 초록색 역대가 가격비교 카드 PNG 만들기</button>
+            <button class="btn btn-outline" style="justify-content:flex-start;padding:12px 14px;" onclick="go('comments')">💬 공정위 심의문구 + 제휴 댓글 템플릿 편집</button>
+            <button class="btn btn-outline" style="justify-content:flex-start;padding:12px 14px;" onclick="go('trends')">🔥 오늘의 추천 글감으로 바로 에디터 열기</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <h2 style="font-size:16px;font-weight:800;">최근 작성한 글</h2>
+          <button class="btn btn-outline btn-sm" onclick="go('posts')">전체 보기</button>
+        </div>
+        <div id="homeRecentPosts"></div>
+      </div>
+    </section>
+
+    <!-- 2. SMART MULTI-EDITOR -->
+    <section id="page-editor" class="page">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">스마트 멀티에디터</h1>
+          <p class="page-sub">계정·페르소나·상품 정보만 넣으면 본문과 제휴 첫 댓글을 계정별로 나눠 써 드려요.</p>
+        </div>
+      </div>
+
+      <div class="stepper">
+        <button class="step-pill active" id="stepPill1" onclick="setStep(1)"><span class="step-num">1</span> 계정 선택</button>
+        <button class="step-pill" id="stepPill2" onclick="setStep(2)"><span class="step-num">2</span> 주제·상품</button>
+        <button class="step-pill" id="stepPill3" onclick="setStep(3)"><span class="step-num">3</span> 글 다듬기</button>
+        <button class="step-pill" id="stepPill4" onclick="setStep(4)"><span class="step-num">4</span> 저장·예약</button>
+      </div>
+
+      <!-- Step 1 -->
+      <div id="editorStep1" class="card">
+        <h2 style="font-size:17px;font-weight:800;margin-bottom:12px;">1. 어떤 계정에 글을 쓸까요?</h2>
+        <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+          <button class="btn btn-soft btn-sm" onclick="selectAllEditorAccounts(true)">전체 선택</button>
+          <button class="btn btn-outline btn-sm" onclick="selectAllEditorAccounts(false)">전체 해제</button>
+          <span class="badge badge-mint" id="editorAccCount">0 / 0 선택됨</span>
+        </div>
+        <div id="editorAccountGrid" class="grid-3" style="margin-bottom:18px;"></div>
+        <div style="display:flex;justify-content:flex-end;">
+          <button class="btn btn-primary" onclick="setStep(2)">다음 · 주제 입력하기 →</button>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div id="editorStep2" class="card" style="display:none;">
+        <h2 style="font-size:17px;font-weight:800;margin-bottom:14px;">2. 상품·주제와 제휴 플랫폼을 입력하세요</h2>
+        <div class="grid-2">
+          <div>
+            <div class="field">
+              <label>플랫폼 (공정위 문구 자동 반영)</label>
+              <select class="input" id="edPlatform">
+                <option value="coupang">쿠팡 파트너스</option>
+                <option value="toss">토스 쇼핑</option>
+                <option value="ohouse">오늘의집 큐레이터</option>
+                <option value="gmarket">G마켓 큐레이터</option>
+                <option value="general">일반 일상글 (링크 없음)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>제품명 / 주제 <span class="badge badge-mint">필수</span></label>
+              <input class="input" id="edTitle" placeholder="예: 무선 미니 가습기 / 발열 장갑" />
+            </div>
+            <div class="field">
+              <label>핵심 소구점 / 포인트 (한두 줄)</label>
+              <textarea class="input" id="edPoint" placeholder="예: 연말 홈파티 오브제로 쓰다 냄비받침 3개로 분리됨, 크리스마스 선물 딱임"></textarea>
+            </div>
+          </div>
+          <div>
+            <div class="grid-2">
+              <div class="field">
+                <label>정상가</label>
+                <input class="input" id="edOrigPrice" placeholder="예: 31,400원" />
+              </div>
+              <div class="field">
+                <label>특가 / 할인가</label>
+                <input class="input" id="edSalePrice" placeholder="예: 19,900원 (63%↓)" />
+              </div>
+            </div>
+            <div class="field">
+              <label>제휴 단축 링크</label>
+              <input class="input" id="edLink" placeholder="https://link.coupang.com/..." />
+            </div>
+            <div class="field">
+              <label>적용할 댓글 템플릿</label>
+              <select class="input" id="edCommentTpl"></select>
+            </div>
+            <div class="field">
+              <label>작성 방식</label>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <label style="font-weight:600;display:flex;align-items:center;gap:6px;cursor:pointer;">
+                  <input type="checkbox" id="edUseEmoji" checked /> 오늘 주기 이모지(💎) 넣기
+                </label>
+                <label style="font-weight:600;display:flex;align-items:center;gap:6px;cursor:pointer;">
+                  <input type="checkbox" id="edUseAI" /> Gemini AI로 다듬기 (API 키 있을 때)
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:8px;">
+          <button class="btn btn-outline" onclick="setStep(1)">← 이전</button>
+          <button class="btn btn-primary" id="btnGenDrafts" onclick="generateDrafts()">✨ 계정별 초안 생성하기 →</button>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div id="editorStep3" style="display:none;">
+        <div class="card" style="margin-bottom:16px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+            <div>
+              <h2 style="font-size:17px;font-weight:800;">3. 계정별 초안 확인 &amp; 복사</h2>
+              <p class="page-sub">각 계정의 페르소나 말투로 본문과 첫 댓글(심의문구+링크)을 나눴어요.</p>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-outline" onclick="setStep(2)">← 주제 수정</button>
+              <button class="btn btn-primary" onclick="setStep(4)">저장·예약 설정 →</button>
+            </div>
+          </div>
+        </div>
+        <div id="editorDraftsWrap" style="display:flex;flex-direction:column;gap:16px;"></div>
+      </div>
+
+      <!-- Step 4 -->
+      <div id="editorStep4" class="card" style="display:none;">
+        <h2 style="font-size:17px;font-weight:800;margin-bottom:14px;">4. 보관함 저장 &amp; 발행 일정 메모</h2>
+        <div class="grid-2">
+          <div class="field">
+            <label>저장 상태</label>
+            <select class="input" id="edSaveStatus">
+              <option value="draft">임시저장</option>
+              <option value="scheduled">예약 대기</option>
+              <option value="published">발행 완료</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>예약/발행 일시</label>
+            <input type="datetime-local" class="input" id="edSaveTime" />
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:10px;">
+          <button class="btn btn-outline" onclick="setStep(3)">← 초안으로</button>
+          <button class="btn btn-primary" onclick="saveEditorPosts()">📦 보관함에 모두 저장하기</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. POSTS ARCHIVE -->
+    <section id="page-posts" class="page">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">내 게시물 보관함</h1>
+          <p class="page-sub">작성한 본문과 첫 댓글을 언제든 원클릭 복사하고 발행 상태를 관리해요.</p>
+        </div>
+        <button class="btn btn-primary" onclick="go('editor')">✨ 새 글 작성</button>
+      </div>
+      <div class="card" style="margin-bottom:16px;">
+        <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;">
+          <div style="display:flex;gap:6px;flex-wrap:wrap;" id="postFilterBtns">
+            <button class="btn btn-soft btn-sm" onclick="setPostFilter('all', this)">전체</button>
+            <button class="btn btn-outline btn-sm" onclick="setPostFilter('draft', this)">임시저장</button>
+            <button class="btn btn-outline btn-sm" onclick="setPostFilter('scheduled', this)">예약 대기</button>
+            <button class="btn btn-outline btn-sm" onclick="setPostFilter('published', this)">발행 완료</button>
+          </div>
+          <input class="input" style="max-width:240px;" id="postSearch" placeholder="본문·계정 검색" oninput="renderPosts()" />
+        </div>
+      </div>
+      <div id="postsList" class="grid-2"></div>
+    </section>
+
+    <!-- 4. ACCOUNTS -->
+    <section id="page-accounts" class="page">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">쓰레드 계정 관리</h1>
+          <p class="page-sub">계정마다 기본 페르소나와 기본 제휴 댓글을 연결해 둘 수 있어요.</p>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:16px;">
+        <h2 style="font-size:15px;font-weight:800;margin-bottom:8px;">계정 추가</h2>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:10px;">핸들만 넣으면 바로 등록돼요. 입력한 계정 정보는 이 브라우저(localStorage)에만 저장되고 어디에도 전송되지 않아요.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <input class="input" id="newAccHandle" placeholder="@my_threads_id" style="flex:2;min-width:170px;" />
+          <input class="input" id="newAccRole" placeholder="역할 (예: 생활템/핫딜)" style="flex:2;min-width:150px;" />
+          <button class="btn btn-primary" onclick="addAccountFrom('newAccHandle','newAccRole')">+ 추가</button>
+        </div>
+      </div>
+      <div id="accountsGrid" class="grid-3"></div>
+    </section>
+
+    <!-- 5. PERSONAS -->
+    <section id="page-personas" class="page">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">페르소나 관리</h1>
+          <p class="page-sub">계정별 말투와 후킹 스타일을 저장하고 멀티에디터에서 바로 불러와요.</p>
+        </div>
+      </div>
+      <div class="grid-2" style="margin-bottom:16px;">
+        <div class="card">
+          <h2 style="font-size:16px;font-weight:800;margin-bottom:12px;">새 페르소나 추가</h2>
+          <div class="field">
+            <label>페르소나 이름</label>
+            <input class="input" id="pName" placeholder="예: 육아맘 내돈내산 리뷰어" />
+          </div>
+          <div class="field">
+            <label>말투 특징 / 프롬프트 지시</label>
+            <textarea class="input" id="pPrompt" placeholder="예: 반말 사용, 첫 줄 공감 후킹, 15~20자 짧고 임팩트 있게"></textarea>
+          </div>
+          <div class="field">
+            <label>예시 오프닝 훅 (줄바꿈으로 여러 개)</label>
+            <textarea class="input" id="pHooks" placeholder="이거 진짜 안 사면 손해임👇&#10;육아하면서 이거 몰랐으면 어쩔 뻔했냐고ㅋㅋ"></textarea>
+          </div>
+          <button class="btn btn-primary" onclick="addPersona()">페르소나 저장</button>
+        </div>
+        <div class="card">
+          <h2 style="font-size:16px;font-weight:800;margin-bottom:12px;">등록된 페르소나</h2>
+          <div id="personasList" style="display:flex;flex-direction:column;gap:10px;max-height:420px;overflow:auto;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. COMMENT TEMPLATES -->
+    <section id="page-comments" class="page">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">제휴 댓글 관리</h1>
+          <p class="page-sub">변수 칩을 눌러 제휴 댓글 템플릿을 만들고 실시간 스레드 미리보기로 확인하세요.</p>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <h2 style="font-size:16px;font-weight:800;margin-bottom:12px;">새 템플릿 만들기</h2>
+          <div class="field">
+            <label>템플릿 이름</label>
+            <input class="input" id="tplName" placeholder="예: 너무 많이 물어봐서 아래 링크 달게" />
+          </div>
+          <div class="field">
+            <label>댓글 본문</label>
+            <div class="chip-bar">
+              <button class="var-chip" onclick="insertVar('[제품명]')">+ 제품명</button>
+              <button class="var-chip" onclick="insertVar('[가격]')">+ 가격</button>
+              <button class="var-chip" onclick="insertVar('[혜택]')">+ 혜택</button>
+              <button class="var-chip" onclick="insertVar('[제휴링크]')">+ 제휴링크</button>
+              <button class="var-chip" onclick="insertVar('[심의문구]')">+ 심의문구</button>
+            </div>
+            <textarea class="input" id="tplBody" oninput="updateTplPreview()" placeholder="[심의문구]&#10;너무 많이 물어봐서 아래 링크 달게&#10;링크 : [제휴링크]"></textarea>
+          </div>
+          <button class="btn btn-primary" onclick="saveTemplate()">템플릿 저장</button>
+        </div>
+
+        <div class="card">
+          <h2 style="font-size:16px;font-weight:800;margin-bottom:12px;">댓글로 달리면 이렇게 보여요</h2>
+          <div class="threads-preview" style="margin-bottom:16px;">
+            <div class="tp-row">
+              <div class="avatar" style="width:32px;height:32px;font-size:12px;">M</div>
+              <div class="tp-body">
+                <div class="tp-handle">my_account <span style="font-weight:400;color:var(--muted);font-size:12px;">방금</span></div>
+                <div id="tplPreviewText" style="color:#374151;">왼쪽에 댓글 본문을 입력하면 미리보기가 표시돼요.</div>
+              </div>
+            </div>
+          </div>
+          <h3 style="font-size:14px;font-weight:800;margin-bottom:8px;">저장된 템플릿</h3>
+          <div id="tplList" style="display:flex;flex-direction:column;gap:8px;max-height:240px;overflow:auto;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. TRENDS -->
+    <section id="page-trends" class="page">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">트렌드 &amp; 오늘의 글감</h1>
+          <p class="page-sub">카테고리별 추천 키워드를 누르면 스마트 멀티에디터로 바로 연결돼요.</p>
+        </div>
+      </div>
+      <div class="grid-2" id="trendsGrid"></div>
+    </section>
+
+    <!-- 8. PRICE CARD GENERATOR -->
+    <section id="page-pricecard" class="page">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">역대가 가격비교 카드 생성기</h1>
+          <p class="page-sub">초록색 계열 스레드 핫딜 비교 카드를 바로 만들어 PNG로 저장해요.</p>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="field">
+            <label>계정 선택 (왼쪽 아래 워터마크)</label>
+            <select class="input" id="pcAccount" onchange="drawPriceCard()"></select>
+          </div>
+          <div class="field">
+            <label>상품명</label>
+            <input class="input" id="pcTitle" value="무선 미니 가습기 500ml" oninput="drawPriceCard()" />
+          </div>
+          <div class="grid-2">
+            <div class="field">
+              <label>할인율 배지</label>
+              <input class="input" id="pcBadge" value="33%" oninput="drawPriceCard()" />
+            </div>
+            <div class="field">
+              <label>배송 태그</label>
+              <input class="input" id="pcShip" value="로켓배송" oninput="drawPriceCard()" />
+            </div>
+          </div>
+          <div class="grid-2">
+            <div class="field">
+              <label>최고가 (원)</label>
+              <input class="input" type="number" id="pcP1" value="29900" oninput="drawPriceCard()" />
+            </div>
+            <div class="field">
+              <label>3주 평균 (원)</label>
+              <input class="input" type="number" id="pcP2" value="24900" oninput="drawPriceCard()" />
+            </div>
+            <div class="field">
+              <label>기존 최저 (원)</label>
+              <input class="input" type="number" id="pcP3" value="22900" oninput="drawPriceCard()" />
+            </div>
+            <div class="field">
+              <label>오늘 특가 (원)</label>
+              <input class="input" type="number" id="pcP4" value="19900" oninput="drawPriceCard()" />
+            </div>
+          </div>
+          <div class="field">
+            <label>체크포인트 (2줄 이내)</label>
+            <input class="input" id="pcNote" value="샘플 데이터예요 · 값을 바꿔 보세요" oninput="drawPriceCard()" />
+          </div>
+          <button class="btn btn-primary" style="width:100%;" onclick="downloadPriceCard()">⬇️ PNG 이미지 저장하기</button>
+        </div>
+        <div class="card" style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
+          <canvas id="priceCanvas" width="760" height="760" style="width:100%;max-width:440px;border-radius:16px;border:1px solid var(--border);"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9. SETTINGS -->
+    <section id="page-settings" class="page">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">AI API 키 &amp; 데이터 백업</h1>
+          <p class="page-sub">모든 데이터는 이 브라우저(localStorage)에만 안전하게 저장됩니다.</p>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <h2 style="font-size:16px;font-weight:800;margin-bottom:10px;">Gemini API 키 (선택)</h2>
+          <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">키를 입력하면 멀티에디터에서 실제 Gemini AI가 페르소나에 맞춰 글을 써 줍니다. 없어도 내장 템플릿 생성기로 바로 쓸 수 있어요.</p>
+          <div class="field">
+            <label>Gemini API Key</label>
+            <input type="password" class="input" id="setGeminiKey" placeholder="AIza..." />
+          </div>
+          <button class="btn btn-primary" onclick="saveSettings()">저장하기</button>
+        </div>
+        <div class="card">
+          <h2 style="font-size:16px;font-weight:800;margin-bottom:10px;">백업 · 복원 · 초기화</h2>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <button class="btn btn-outline" onclick="exportBackup()">📤 전체 데이터 JSON 내보내기</button>
+            <label class="btn btn-outline" style="cursor:pointer;">
+              📥 백업 파일 불러오기
+              <input type="file" accept=".json" style="display:none;" onchange="importBackup(event)" />
+            </label>
+            <button class="btn btn-danger" onclick="resetAll()">🗑️ 초기 상태로 되돌리기</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<nav class="mobile-tabs">
+  <button class="active" data-page="home" onclick="go('home')">🏠<span>홈</span></button>
+  <button data-page="editor" onclick="go('editor')">✨<span>에디터</span></button>
+  <button data-page="posts" onclick="go('posts')">📦<span>보관함</span></button>
+  <button data-page="pricecard" onclick="go('pricecard')">📊<span>카드</span></button>
+  <button data-page="comments" onclick="go('comments')">💬<span>댓글</span></button>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const STORAGE_KEY = 'torireaths_v1';
+
+const DISCLAIMERS = {
+  coupang: '이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.',
+  toss: '이 포스팅은 토스 쇼핑 어필리에이트 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.',
+  ohouse: '이 포스팅은 오늘의집 큐레이터 활동의 일환으로, 일정액의 수수료를 제공받을 수 있습니다.',
+  gmarket: '이 포스팅은 G마켓 큐레이터 활동의 일환으로, 일정액의 수수료를 제공받습니다.',
+  general: ''
+};
+
+const DEFAULT_DATA = {
+  geminiKey: '',
+  accounts: [],
+  personas: [
+    {
+      id: 'p1',
+      name: '생활감성 반말 벤치마킹 톤',
+      prompt: '친근하고 담백한 반말, 실제 써본 듯한 생활감성 톤, 과장 없이 핵심 포인트 2~3개 전달',
+      hooks: ['요즘 매일 쓰는데 이거 진짜 요물임 💎', '진작 살걸 싶었던 삶의 질 수직상승템', '이거 하나 바꿨다고 이렇게 편해질 일?']
+    },
+    {
+      id: 'p2',
+      name: '생활템추천카피라이터',
+      prompt: '스레드 생활템 카피라이터, 15~20자 짧은 반말 한 줄 후킹 + 쓰기 전 불편/써보고 달라진 점 강조',
+      hooks: ['이거 진짜 안 사면 손해임 👇', '역대가 떴을 때 쟁여야 하는 이유', '오늘 가격 미쳤다 진짜 바로 비교해 봄']
+    },
+    {
+      id: 'p3',
+      name: '현실 부부·육아 유머',
+      prompt: '친한 언니/친구한테 톡 보내듯 ㅋㅋㅋ 섞인 유쾌한 반말 톤, 공감부터 끌어내는 도입부',
+      hooks: ['아 근데 이거 나만 몰랐냐고ㅋㅋ', '육아하면서 이거 없었으면 어쩔 뻔했음ㅠ', '남편도 써보더니 하나 더 사자고 난리남ㅋㅋ']
+    },
+    {
+      id: 'p4',
+      name: '육아맘 99% 내돈내산',
+      prompt: '99% 내돈내산 톤, 아기 엄마 입장에서 가성비·안전·편의성 짚어주는 믿음직한 반말',
+      hooks: ['아기 키우는 집이면 무조건 쟁여야 하는 템', '돌고 돌아 결국 정착한 이유 정리함', '손목 평화 지켜주는 육아 숏컷템 찾았다']
+    },
+    {
+      id: 'p5',
+      name: '호들갑 꿀템 찐리뷰어',
+      prompt: '다이소/코스트코/핫딜 스타일의 텐션 높은 존댓말 리뷰어 톤',
+      hooks: ['이건 진짜 보이자마자 바로 담으셔야 해요!', '써보자마자 재구매 각 나온 찐꿀템 공유해요']
+    }
+  ],
+  templates: [
+    { id: 't1', name: '너무 많이 물어봐서 아래 링크 달게', body: '[심의문구]\n\n너무 많이 물어봐서 아래 링크 달게 👇\n링크 : [제휴링크]' },
+    { id: 't2', name: '이 제품 궁금하면 아래 링크', body: '[심의문구]\n\n[제품명] 지금 [가격]이라 정보 공유해!\n자세히 보기 👉 [제휴링크]' },
+    { id: 't3', name: '정보 큐레이션형', body: '[심의문구]\n\n정리해 둔 링크 참고해봐 👇\n📌 [제휴링크]' }
+  ],
+  posts: [],
+  trends: [
+    { cat: '육아 · 생활필수', badge: '인기', items: ['아기 물티슈 대용량', '겨울 실내건조 세제', '스테인리스 밀폐용기', '기저귀 핫딜 비교'] },
+    { cat: '겨울 · 연말 시즌', badge: '시즌', items: ['크리스마스 트리 냄비받침', '손가락 뚫린 발열장갑', '벽난로 미스트 가습기', '수족냉증 압박양말'] },
+    { cat: '식품 · 간식 특가', badge: '특가', items: ['소금없는 순한김 32봉', '제주 노지 감귤 5kg', '고단백 프로틴 음료', '임성근 특갈비탕'] },
+    { cat: '일상 밑밥글 소재', badge: '소통', items: ['주말에 시간 순삭하는 루틴', '오늘 저녁 메뉴 추천 좀', '겨울 난방비 아끼는 팁', '요즘 푹 빠진 소확행'] }
+  ]
+};
+
+let state = loadData();
+let currentStep = 1;
+let currentDrafts = [];
+let postFilter = 'all';
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return structuredClone(DEFAULT_DATA);
+    const parsed = JSON.parse(raw);
+    return { ...structuredClone(DEFAULT_DATA), ...parsed };
+  } catch { return structuredClone(DEFAULT_DATA); }
+}
+function saveData() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  refreshStats();
+}
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2200);
+}
+function copyText(txt, label='복사됐어요!') {
+  navigator.clipboard.writeText(txt).then(() => toast(label)).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = txt; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); ta.remove(); toast(label);
+  });
+}
+
+function go(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.querySelectorAll('.nav-btn, .mobile-tabs button').forEach(b => {
+    b.classList.toggle('active', b.dataset.page === page);
+  });
+  if (page === 'editor') renderEditorInit();
+  if (page === 'posts') renderPosts();
+  if (page === 'accounts') renderAccounts();
+  if (page === 'personas') renderPersonas();
+  if (page === 'comments') renderTemplates();
+  if (page === 'trends') renderTrends();
+  if (page === 'pricecard') renderPriceCardInit();
+  if (page === 'settings') document.getElementById('setGeminiKey').value = state.geminiKey || '';
+}
+
+function refreshStats() {
+  document.getElementById('statAccounts').textContent = state.accounts.length + '개';
+  document.getElementById('statPosts').textContent = state.posts.length + '건';
+  document.getElementById('statScheduled').textContent = state.posts.filter(p => p.status === 'scheduled').length + '건';
+  document.getElementById('statPersonas').textContent = state.personas.length + '개';
+  document.getElementById('sidebarStatus').textContent = `● 계정 ${state.accounts.length}개`;
+
+  const ob = document.getElementById('onboardCard');
+  if (ob) ob.style.display = state.accounts.length ? 'none' : 'block';
+
+  const homeAcc = document.getElementById('homeAccountList');
+  homeAcc.innerHTML = state.accounts.length ? state.accounts.map(a => {
+    const p = state.personas.find(x => x.id === a.personaId);
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border:1px solid var(--border);border-radius:12px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="avatar">${(a.handle.replace('@','')[0] || '?').toUpperCase()}</div>
+        <div>
+          <div style="font-weight:800;font-size:14px;">${esc(a.handle)}</div>
+          <div style="font-size:12px;color:var(--muted);">${p ? esc(p.name) : '기본 말투'}</div>
+        </div>
+      </div>
+      <span class="badge badge-mint">${esc(a.role)}</span>
+    </div>`;
+  }).join('') : `<div style="color:var(--muted);font-size:13px;padding:6px 0;">아직 등록된 계정이 없어요. 위 입력창에서 계정을 추가하면 여기에 표시돼요.</div>`;
+
+  const rec = document.getElementById('homeRecentPosts');
+  if (!state.posts.length) {
+    rec.innerHTML = `<div style="color:var(--muted);font-size:13px;padding:12px 0;">아직 보관함에 저장된 글이 없어요. 스마트 멀티에디터로 첫 글을 만들어 보세요!</div>`;
+  } else {
+    rec.innerHTML = state.posts.slice(0, 4).map(p => `
+      <div style="padding:10px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:10px;">
+        <div style="min-width:0;">
+          <div style="font-size:12px;font-weight:700;color:#059669;">${p.handle} · ${statusLabel(p.status)}</div>
+          <div style="font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(p.body.split('\n')[0])}</div>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="copyPost('${p.id}', 'both')">복사</button>
+      </div>`).join('');
+  }
+}
+
+function statusLabel(s) {
+  return s === 'published' ? '발행 완료' : s === 'scheduled' ? '예약 대기' : '임시저장';
+}
+function esc(str) {
+  return (str || '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+/* EDITOR */
+function renderEditorInit() {
+  const grid = document.getElementById('editorAccountGrid');
+  grid.innerHTML = state.accounts.length ? state.accounts.map(a => {
+    const p = state.personas.find(x => x.id === a.personaId);
+    return `<button class="acc-chip ${a.selected ? 'selected' : ''}" onclick="toggleEditorAcc('${a.id}')">
+      <div class="avatar">${(a.handle.replace('@','')[0] || '?').toUpperCase()}</div>
+      <div style="min-width:0;">
+        <div style="font-weight:800;font-size:14px;">${esc(a.handle)}</div>
+        <div style="font-size:12px;color:var(--muted);">${p ? esc(p.name) : ''}</div>
+      </div>
+    </button>`;
+  }).join('') : `<div class="card" style="grid-column:1/-1;text-align:center;color:var(--muted);padding:26px;">
+      아직 등록된 계정이 없어요.<br>먼저 스레드 계정을 추가해 주세요.
+      <div style="margin-top:12px;"><button class="btn btn-primary" onclick="go('accounts')">👤 계정 추가하러 가기</button></div>
+    </div>`;
+  const cnt = state.accounts.filter(a => a.selected).length;
+  document.getElementById('editorAccCount').textContent = `${cnt} / ${state.accounts.length} 선택됨`;
+
+  const tplSel = document.getElementById('edCommentTpl');
+  tplSel.innerHTML = state.templates.map(t => `<option value="${t.id}">${esc(t.name)}</option>`).join('');
+}
+
+function toggleEditorAcc(id) {
+  const a = state.accounts.find(x => x.id === id);
+  if (a) a.selected = !a.selected;
+  saveData();
+  renderEditorInit();
+}
+function selectAllEditorAccounts(val) {
+  state.accounts.forEach(a => a.selected = val);
+  saveData();
+  renderEditorInit();
+}
+function setStep(n) {
+  if (n === 2 && !state.accounts.some(a => a.selected)) {
+    toast('최소 1개 계정을 선택해 주세요!'); return;
+  }
+  currentStep = n;
+  for (let i = 1; i <= 4; i++) {
+    document.getElementById('editorStep' + i).style.display = (i === n) ? 'block' : 'none';
+    const pill = document.getElementById('stepPill' + i);
+    pill.classList.toggle('active', i === n);
+    pill.classList.toggle('done', i < n);
+  }
+}
+
+function fillTemplateVars(tplBody, { title, price, origPrice, link, platform }) {
+  const disclaimer = DISCLAIMERS[platform] || '';
+  const benefit = origPrice && price ? `${origPrice} → ${price}` : (price || '특가 진행 중');
+  return tplBody
+    .replaceAll('[제품명]', title || '추천 아이템')
+    .replaceAll('[가격]', price || '특가')
+    .replaceAll('[혜택]', benefit)
+    .replaceAll('[제휴링크]', link || '(링크 입력 필요)')
+    .replaceAll('[심의문구]', disclaimer)
+    .trim();
+}
+
+async function generateDrafts() {
+  const title = document.getElementById('edTitle').value.trim();
+  if (!title) { toast('제품명이나 주제를 입력해 주세요!'); return; }
+  const point = document.getElementById('edPoint').value.trim();
+  const origPrice = document.getElementById('edOrigPrice').value.trim();
+  const salePrice = document.getElementById('edSalePrice').value.trim();
+  const link = document.getElementById('edLink').value.trim();
+  const platform = document.getElementById('edPlatform').value;
+  const tplId = document.getElementById('edCommentTpl').value;
+  const tpl = state.templates.find(t => t.id === tplId) || state.templates[0];
+  const useEmoji = document.getElementById('edUseEmoji').checked;
+  const useAI = document.getElementById('edUseAI').checked && state.geminiKey;
+
+  const selectedAccs = state.accounts.filter(a => a.selected);
+  const btn = document.getElementById('btnGenDrafts');
+  btn.textContent = '초안 만드는 중...';
+  btn.disabled = true;
+
+  currentDrafts = [];
+  for (let i = 0; i < selectedAccs.length; i++) {
+    const acc = selectedAccs[i];
+    const persona = state.personas.find(p => p.id === acc.personaId) || state.personas[0];
+    let body = '';
+    if (useAI) {
+      try {
+        body = await callGemini(persona, title, point, origPrice, salePrice, useEmoji);
+      } catch (e) {
+        body = buildLocalDraft(persona, title, point, origPrice, salePrice, useEmoji, i);
+      }
+    } else {
+      body = buildLocalDraft(persona, title, point, origPrice, salePrice, useEmoji, i);
+    }
+    const comment = platform === 'general' ? '' : fillTemplateVars(tpl.body, { title, price: salePrice, origPrice, link, platform });
+    currentDrafts.push({ accId: acc.id, handle: acc.handle, personaName: persona.name, body, comment });
+  }
+
+  btn.textContent = '✨ 계정별 초안 생성하기 →';
+  btn.disabled = false;
+  renderDrafts();
+  setStep(3);
+}
+
+function buildLocalDraft(persona, title, point, origPrice, salePrice, useEmoji, idx) {
+  const hook = persona.hooks[idx % persona.hooks.length] || persona.hooks[0];
+  const prefix = useEmoji ? '💎 ' : '';
+  const priceLine = (origPrice || salePrice)
+    ? `\n\n${origPrice ? `원래 ${origPrice}인데 ` : ''}지금 ${salePrice || '특가'} 떴더라`
+    : '';
+  const pointLine = point ? `\n${point}` : `\n요즘 제일 많이 찾길래 바로 정리해 봄`;
+  const closing = idx % 2 === 0
+    ? `\n\n괜찮은 가격일 때 하나 쟁여두면 두고두고 잘 쓸 듯!`
+    : `\n\n품절 풀리기 전에 한 번 구경해 봐 👇`;
+  return `${prefix}${hook}\n\n${title}${pointLine}${priceLine}${closing}`;
+}
+
+async function callGemini(persona, title, point, origPrice, salePrice, useEmoji) {
+  const prompt = `너는 Threads(스레드) 크리에이터야. 아래 페르소나 말투로 짧은 스레드 본문만 작성해줘(링크나 대가성 문구는 본문에 넣지 마).
+페르소나: ${persona.name} (${persona.prompt})
+제품/주제: ${title}
+핵심 포인트: ${point || '실사용 만족도 높음'}
+가격: ${origPrice || ''} -> ${salePrice || ''}
+조건: ${useEmoji ? '첫 줄에 💎 이모지 포함, ' : ''}3~5줄 내외로 자연스럽고 스크롤 멈추는 후킹 포함.`;
+  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(state.geminiKey)}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+  });
+  const data = await res.json();
+  return data.candidates[0].content.parts[0].text.trim();
+}
+
+function renderDrafts() {
+  const wrap = document.getElementById('editorDraftsWrap');
+  wrap.innerHTML = currentDrafts.map((d, idx) => `
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="avatar" style="width:30px;height:30px;font-size:12px;">${d.handle.replace('@','')[0].toUpperCase()}</div>
+          <strong>${d.handle}</strong>
+          <span class="badge badge-mint">${esc(d.personaName)}</span>
+        </div>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-outline btn-sm" onclick="copyText(currentDrafts[${idx}].body, '본문 복사됨')">본문 복사</button>
+          ${d.comment ? `<button class="btn btn-outline btn-sm" onclick="copyText(currentDrafts[${idx}].comment, '첫 댓글 복사됨')">댓글 복사</button>` : ''}
+        </div>
+      </div>
+      <div class="grid-2">
+        <div>
+          <div class="field">
+            <label>본문 (수정 가능)</label>
+            <textarea class="input" rows="6" oninput="currentDrafts[${idx}].body=this.value;updatePreview(${idx})">${esc(d.body)}</textarea>
+          </div>
+          ${d.comment ? `<div class="field">
+            <label>첫 댓글 (제휴 링크 + 심의문구)</label>
+            <textarea class="input" rows="4" oninput="currentDrafts[${idx}].comment=this.value;updatePreview(${idx})">${esc(d.comment)}</textarea>
+          </div>` : ''}
+        </div>
+        <div class="threads-preview">
+          <div class="tp-row">
+            <div style="display:flex;flex-direction:column;align-items:center;">
+              <div class="avatar" style="width:32px;height:32px;font-size:12px;">${d.handle.replace('@','')[0].toUpperCase()}</div>
+              ${d.comment ? '<div class="tp-line"></div>' : ''}
+            </div>
+            <div class="tp-body">
+              <div class="tp-handle">${d.handle} <span style="font-weight:400;color:var(--muted);font-size:12px;">미리보기</span></div>
+              <div id="pvBody${idx}">${esc(d.body)}</div>
+              <div class="tp-actions">♡ 0 · 💬 ${d.comment ? 1 : 0} · 🔁 0</div>
+            </div>
+          </div>
+          ${d.comment ? `<div class="tp-row" style="margin-top:8px;">
+            <div class="avatar" style="width:28px;height:28px;font-size:11px;background:#374151;">${d.handle.replace('@','')[0].toUpperCase()}</div>
+            <div class="tp-body">
+              <div class="tp-handle" style="font-size:13px;">${d.handle} <span class="badge">첫 댓글</span></div>
+              <div id="pvComment${idx}" style="font-size:13px;color:#374151;">${esc(d.comment)}</div>
+            </div>
+          </div>` : ''}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function updatePreview(idx) {
+  const b = document.getElementById('pvBody' + idx);
+  if (b) b.textContent = currentDrafts[idx].body;
+  const c = document.getElementById('pvComment' + idx);
+  if (c) c.textContent = currentDrafts[idx].comment;
+}
+
+function saveEditorPosts() {
+  const status = document.getElementById('edSaveStatus').value;
+  const time = document.getElementById('edSaveTime').value || new Date().toISOString().slice(0,16);
+  const platform = document.getElementById('edPlatform').value;
+  currentDrafts.forEach(d => {
+    state.posts.unshift({
+      id: 'post_' + Date.now() + '_' + Math.random().toString(36).slice(2,6),
+      handle: d.handle,
+      personaName: d.personaName,
+      platform,
+      body: d.body,
+      comment: d.comment,
+      status,
+      time
+    });
+  });
+  saveData();
+  toast(`${currentDrafts.length}건이 보관함에 저장됐어요!`);
+  go('posts');
+}
+
+/* POSTS */
+function setPostFilter(f, btn) {
+  postFilter = f;
+  document.querySelectorAll('#postFilterBtns button').forEach(b => {
+    b.className = b === btn ? 'btn btn-soft btn-sm' : 'btn btn-outline btn-sm';
+  });
+  renderPosts();
+}
+function renderPosts() {
+  const q = (document.getElementById('postSearch').value || '').toLowerCase();
+  const list = state.posts.filter(p => {
+    if (postFilter !== 'all' && p.status !== postFilter) return false;
+    if (q && !p.body.toLowerCase().includes(q) && !p.handle.toLowerCase().includes(q)) return false;
+    return true;
+  });
+  const wrap = document.getElementById('postsList');
+  if (!list.length) {
+    wrap.innerHTML = `<div class="card" style="grid-column:1/-1;text-align:center;color:var(--muted);padding:36px;">해당하는 게시물이 없어요.</div>`;
+    return;
+  }
+  wrap.innerHTML = list.map(p => `
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <span style="font-weight:800;font-size:13px;">${p.handle}</span>
+        <span class="badge ${p.status==='published'?'badge-mint':p.status==='scheduled'?'badge-blue':'badge-warn'}">${statusLabel(p.status)}</span>
+      </div>
+      <div style="font-size:13px;white-space:pre-wrap;margin-bottom:10px;max-height:110px;overflow:auto;">${esc(p.body)}</div>
+      ${p.comment ? `<div style="font-size:12px;color:var(--muted);background:#f9fafb;padding:8px;border-radius:8px;margin-bottom:10px;white-space:pre-wrap;">${esc(p.comment)}</div>` : ''}
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
+        <span style="font-size:11px;color:var(--muted);">${p.time.replace('T',' ')}</span>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-outline btn-sm" onclick="copyPost('${p.id}','body')">본문</button>
+          ${p.comment ? `<button class="btn btn-outline btn-sm" onclick="copyPost('${p.id}','comment')">댓글</button>` : ''}
+          <button class="btn btn-soft btn-sm" onclick="cyclePostStatus('${p.id}')">상태변경</button>
+          <button class="btn btn-danger btn-sm" onclick="deletePost('${p.id}')">삭제</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+function copyPost(id, part) {
+  const p = state.posts.find(x => x.id === id);
+  if (!p) return;
+  if (part === 'both') {
+    copyText(p.comment ? `${p.body}\n\n${p.comment}` : p.body, '본문+댓글 복사됨');
+  } else {
+    copyText(part === 'body' ? p.body : p.comment, part === 'body' ? '본문 복사됨' : '댓글 복사됨');
+  }
+}
+function cyclePostStatus(id) {
+  const p = state.posts.find(x => x.id === id);
+  if (!p) return;
+  p.status = p.status === 'draft' ? 'scheduled' : p.status === 'scheduled' ? 'published' : 'draft';
+  saveData(); renderPosts();
+}
+function deletePost(id) {
+  state.posts = state.posts.filter(x => x.id !== id);
+  saveData(); renderPosts(); toast('삭제됐어요');
+}
+
+/* ACCOUNTS */
+function renderAccounts() {
+  const wrap = document.getElementById('accountsGrid');
+  if (!state.accounts.length) {
+    wrap.innerHTML = `<div class="card" style="grid-column:1/-1;text-align:center;color:var(--muted);padding:32px;">아직 등록된 계정이 없어요.<br>위 입력창에 스레드 핸들을 넣고 <b>+ 추가</b>를 눌러 주세요.</div>`;
+    return;
+  }
+  wrap.innerHTML = state.accounts.map(a => `
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+        <div class="avatar">${(a.handle.replace('@','')[0] || '?').toUpperCase()}</div>
+        <div style="min-width:0;">
+          <div style="font-weight:800;font-size:15px;">${esc(a.handle)}</div>
+          <div style="font-size:12px;color:var(--muted);">${esc(a.role)}</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>기본 페르소나</label>
+        <select class="input" onchange="updateAcc('${a.id}','personaId',this.value)">
+          ${state.personas.map(p => `<option value="${p.id}" ${p.id===a.personaId?'selected':''}>${esc(p.name)}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field">
+        <label>기본 제휴 댓글</label>
+        <select class="input" onchange="updateAcc('${a.id}','templateId',this.value)">
+          ${state.templates.map(t => `<option value="${t.id}" ${t.id===a.templateId?'selected':''}>${esc(t.name)}</option>`).join('')}
+        </select>
+      </div>
+      <button class="btn btn-danger btn-sm" style="margin-top:4px;width:100%;" onclick="deleteAccount('${a.id}')">이 계정 삭제</button>
+    </div>
+  `).join('');
+}
+function addAccountFrom(handleId, roleId) {
+  const hEl = document.getElementById(handleId);
+  const rEl = roleId ? document.getElementById(roleId) : null;
+  let handle = ((hEl && hEl.value) || '').trim();
+  if (!handle) { toast('스레드 핸들을 입력해 주세요'); if (hEl) hEl.focus(); return; }
+  handle = handle.replace(/\s+/g, '');
+  if (!handle.startsWith('@')) handle = '@' + handle;
+  if (state.accounts.some(a => a.handle.toLowerCase() === handle.toLowerCase())) { toast('이미 등록된 계정이에요'); return; }
+  const role = ((rEl && rEl.value) || '').trim() || '서브 계정';
+  state.accounts.push({
+    id: 'acc_' + Date.now(),
+    handle,
+    role,
+    personaId: state.personas[0].id,
+    templateId: state.templates[0].id,
+    selected: true
+  });
+  if (hEl) hEl.value = '';
+  if (rEl) rEl.value = '';
+  saveData(); renderAccounts();
+  toast(handle + ' 계정이 추가됐어요');
+}
+function deleteAccount(id) {
+  const a = state.accounts.find(x => x.id === id);
+  if (!a) return;
+  if (!confirm(a.handle + ' 계정을 목록에서 삭제할까요? (보관함 글은 그대로 남아요)')) return;
+  state.accounts = state.accounts.filter(x => x.id !== id);
+  saveData(); renderAccounts();
+  toast('계정이 삭제됐어요');
+}
+function updateAcc(id, key, val) {
+  const a = state.accounts.find(x => x.id === id);
+  if (a) { a[key] = val; saveData(); toast('계정 설정이 저장됐어요'); }
+}
+function addAccountPrompt() {
+  const handle = prompt('추가할 스레드 핸들을 입력하세요 (예: @my_account)');
+  if (!handle) return;
+  const hEl = document.getElementById('newAccHandle');
+  if (hEl) { hEl.value = handle; addAccountFrom('newAccHandle', 'newAccRole'); }
+}
+
+/* PERSONAS */
+function renderPersonas() {
+  const wrap = document.getElementById('personasList');
+  wrap.innerHTML = state.personas.map(p => `
+    <div style="border:1px solid var(--border);border-radius:12px;padding:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+        <strong style="font-size:14px;">${esc(p.name)}</strong>
+        ${state.personas.length > 1 ? `<button class="btn btn-danger btn-sm" onclick="delPersona('${p.id}')">삭제</button>` : ''}
+      </div>
+      <div style="font-size:12px;color:var(--muted);">${esc(p.prompt)}</div>
+    </div>
+  `).join('');
+}
+function addPersona() {
+  const name = document.getElementById('pName').value.trim();
+  const promptTxt = document.getElementById('pPrompt').value.trim();
+  const hooks = document.getElementById('pHooks').value.split('\n').map(s => s.trim()).filter(Boolean);
+  if (!name) { toast('페르소나 이름을 입력하세요'); return; }
+  state.personas.push({
+    id: 'p_' + Date.now(),
+    name,
+    prompt: promptTxt || '자연스러운 반말 추천 톤',
+    hooks: hooks.length ? hooks : ['요즘 다들 이거 찾더라 👇']
+  });
+  document.getElementById('pName').value = '';
+  document.getElementById('pPrompt').value = '';
+  document.getElementById('pHooks').value = '';
+  saveData(); renderPersonas(); toast('페르소나 저장 완료!');
+}
+function delPersona(id) {
+  state.personas = state.personas.filter(x => x.id !== id);
+  saveData(); renderPersonas();
+}
+
+/* COMMENTS */
+function insertVar(token) {
+  const ta = document.getElementById('tplBody');
+  const start = ta.selectionStart || 0;
+  const end = ta.selectionEnd || 0;
+  ta.value = ta.value.slice(0, start) + token + ta.value.slice(end);
+  ta.focus();
+  updateTplPreview();
+}
+function updateTplPreview() {
+  const body = document.getElementById('tplBody').value;
+  document.getElementById('tplPreviewText').textContent = body
+    ? fillTemplateVars(body, { title: '샘플 상품명', price: '19,900원', origPrice: '31,400원', link: 'https://example.com/affiliate', platform: 'coupang' })
+    : '왼쪽에 댓글 본문을 입력하면 미리보기가 표시돼요.';
+}
+function saveTemplate() {
+  const name = document.getElementById('tplName').value.trim();
+  const body = document.getElementById('tplBody').value.trim();
+  if (!name || !body) { toast('이름과 본문을 모두 입력해 주세요'); return; }
+  state.templates.push({ id: 't_' + Date.now(), name, body });
+  document.getElementById('tplName').value = '';
+  document.getElementById('tplBody').value = '';
+  saveData(); renderTemplates(); updateTplPreview(); toast('템플릿 저장됨!');
+}
+function renderTemplates() {
+  const wrap = document.getElementById('tplList');
+  wrap.innerHTML = state.templates.map(t => `
+    <div style="border:1px solid var(--border);border-radius:10px;padding:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+        <strong style="font-size:13px;">${esc(t.name)}</strong>
+        ${state.templates.length > 1 ? `<button class="btn btn-danger btn-sm" onclick="delTemplate('${t.id}')">삭제</button>` : ''}
+      </div>
+      <div style="font-size:12px;color:var(--muted);white-space:pre-wrap;">${esc(t.body)}</div>
+    </div>
+  `).join('');
+}
+function delTemplate(id) {
+  state.templates = state.templates.filter(x => x.id !== id);
+  saveData(); renderTemplates();
+}
+
+/* TRENDS */
+function renderTrends() {
+  const wrap = document.getElementById('trendsGrid');
+  wrap.innerHTML = state.trends.map(g => `
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <h3 style="font-size:16px;font-weight:800;">${esc(g.cat)}</h3>
+        <span class="badge badge-mint">${esc(g.badge)}</span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;">
+        ${g.items.map(it => `<button class="var-chip" onclick="useTrend('${esc(it)}')">✨ ${esc(it)}</button>`).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+function useTrend(kw) {
+  go('editor');
+  setStep(2);
+  document.getElementById('edTitle').value = kw;
+  toast(`'${kw}' 주제로 바로 넘어왔어요!`);
+}
+
+/* PRICE CARD CANVAS */
+function renderPriceCardInit() {
+  const sel = document.getElementById('pcAccount');
+  sel.innerHTML = state.accounts.length
+    ? state.accounts.map(a => `<option value="${esc(a.handle)}">${esc(a.handle)}</option>`).join('')
+    : `<option value="">계정 미등록</option>`;
+  drawPriceCard();
+}
+function drawPriceCard() {
+  const canvas = document.getElementById('priceCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = 760, H = 760;
+  const handle = document.getElementById('pcAccount').value || '@my_account';
+  const title = document.getElementById('pcTitle').value;
+  const badge = document.getElementById('pcBadge').value;
+  const ship = document.getElementById('pcShip').value;
+  const vals = [
+    Number(document.getElementById('pcP1').value || 0),
+    Number(document.getElementById('pcP2').value || 0),
+    Number(document.getElementById('pcP3').value || 0),
+    Number(document.getElementById('pcP4').value || 0)
+  ];
+  const note = document.getElementById('pcNote').value;
+
+  const grad = ctx.createLinearGradient(0, 0, W, H);
+  grad.addColorStop(0, '#eefcf7');
+  grad.addColorStop(1, '#d8f6ea');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+
+  // Main white card
+  roundRect(ctx, 36, 36, W - 72, H - 72, 28, '#ffffff');
+
+  // Top badges
+  roundRect(ctx, 68, 68, 178, 38, 19, '#10b981');
+  ctx.fillStyle = '#ffffff'; ctx.font = 'bold 17px sans-serif';
+  ctx.fillText('오늘의 역대가 핫딜', 86, 93);
+
+  roundRect(ctx, 258, 68, 86, 38, 19, '#ecfdf5');
+  ctx.fillStyle = '#059669'; ctx.font = 'bold 18px sans-serif';
+  ctx.fillText(badge, 280, 93);
+
+  roundRect(ctx, 354, 68, 110, 38, 19, '#f3f4f6');
+  ctx.fillStyle = '#374151'; ctx.font = 'bold 16px sans-serif';
+  ctx.fillText(ship, 375, 93);
+
+  // Title
+  ctx.fillStyle = '#111827'; ctx.font = 'bold 28px sans-serif';
+  wrapText(ctx, title, 68, 152, W - 136, 36);
+
+  // Price highlight
+  ctx.fillStyle = '#9ca3af'; ctx.font = '22px sans-serif';
+  const origStr = `기존 최고 ${vals[0].toLocaleString()}원`;
+  ctx.fillText(origStr, 68, 240);
+  const wOrig = ctx.measureText(origStr).width;
+  ctx.strokeStyle = '#9ca3af'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(68, 232); ctx.lineTo(68 + wOrig, 232); ctx.stroke();
+
+  ctx.fillStyle = '#059669'; ctx.font = '900 54px sans-serif';
+  ctx.fillText(`${vals[3].toLocaleString()}원`, 68, 305);
+
+  // Chart box
+  roundRect(ctx, 68, 340, W - 136, 260, 20, '#f8fafc');
+  const labels = ['최고가', '3주 평균', '기존 최저', '오늘 특가'];
+  const minV = Math.min(...vals) * 0.85;
+  const maxV = Math.max(...vals) * 1.08 || 1;
+  const xs = [140, 300, 460, 620];
+  const ys = vals.map(v => 535 - ((v - minV) / (maxV - minV)) * 130);
+
+  // Area
+  ctx.beginPath();
+  ctx.moveTo(xs[0], 555);
+  xs.forEach((x, i) => ctx.lineTo(x, ys[i]));
+  ctx.lineTo(xs[3], 555);
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(16, 185, 129, 0.14)';
+  ctx.fill();
+
+  // Line
+  ctx.beginPath();
+  xs.forEach((x, i) => i === 0 ? ctx.moveTo(x, ys[i]) : ctx.lineTo(x, ys[i]));
+  ctx.strokeStyle = '#10b981'; ctx.lineWidth = 5; ctx.stroke();
+
+  xs.forEach((x, i) => {
+    ctx.beginPath(); ctx.arc(x, ys[i], i === 3 ? 10 : 7, 0, Math.PI * 2);
+    ctx.fillStyle = i === 3 ? '#059669' : '#ffffff';
+    ctx.fill();
+    ctx.strokeStyle = '#10b981'; ctx.lineWidth = 4; ctx.stroke();
+
+    ctx.fillStyle = i === 3 ? '#059669' : '#374151';
+    ctx.font = i === 3 ? 'bold 19px sans-serif' : 'bold 16px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(vals[i].toLocaleString() + '원', x, ys[i] - 18);
+    ctx.fillStyle = '#6b7280'; ctx.font = '15px sans-serif';
+    ctx.fillText(labels[i], x, 578);
+  });
+  ctx.textAlign = 'left';
+
+  // Note & Watermark
+  roundRect(ctx, 68, 618, W - 136, 46, 12, '#ecfdf5');
+  ctx.fillStyle = '#047857'; ctx.font = 'bold 19px sans-serif';
+  ctx.fillText('✓ ' + note, 86, 648);
+
+  ctx.fillStyle = '#6b7280'; ctx.font = 'bold 17px sans-serif';
+  ctx.fillText(`${handle} · 실시간 역대가 비교`, 68, 698);
+}
+
+function roundRect(ctx, x, y, w, h, r, fill) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+  ctx.fillStyle = fill;
+  ctx.fill();
+}
+function wrapText(ctx, text, x, y, maxW, lineH) {
+  let line = '';
+  for (const ch of text) {
+    const test = line + ch;
+    if (ctx.measureText(test).width > maxW) {
+      ctx.fillText(line, x, y); line = ch; y += lineH;
+    } else line = test;
+  }
+  ctx.fillText(line, x, y);
+}
+function downloadPriceCard() {
+  const link = document.createElement('a');
+  link.download = 'threads-price-card.png';
+  link.href = document.getElementById('priceCanvas').toDataURL('image/png');
+  link.click();
+  toast('PNG 이미지가 저장됐어요!');
+}
+
+/* SETTINGS */
+function saveSettings() {
+  state.geminiKey = document.getElementById('setGeminiKey').value.trim();
+  saveData(); toast('설정이 저장됐어요!');
+}
+function exportBackup() {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'torireaths-backup.json';
+  a.click();
+}
+function importBackup(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      state = JSON.parse(reader.result);
+      saveData(); refreshStats(); toast('백업을 불러왔어요!');
+    } catch { toast('올바른 백업 파일이 아니에요'); }
+  };
+  reader.readAsText(file);
+}
+function resetAll() {
+  if (!confirm('정말 모든 보관함과 설정을 초기화할까요?')) return;
+  state = structuredClone(DEFAULT_DATA);
+  saveData(); refreshStats(); toast('초기화 완료');
+}
+
+refreshStats();
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('sw.js').catch(function () {});
+  });
+}
+</script>
+</body>
+</html>

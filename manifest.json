@@ -1,0 +1,17 @@
+{
+  "name": "토리레쓰",
+  "short_name": "토리레쓰",
+  "description": "스레드 제휴 글쓰기 스튜디오 - 멀티에디터, 페르소나, 제휴 댓글 템플릿, 역대가 카드 생성기",
+  "lang": "ko",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f8fafc",
+  "theme_color": "#10b981",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
