@@ -15,3 +15,8 @@
 - `index.html` — 앱 본체 (외부 프레임워크 없음)
 - `manifest.json`, `icon-*.png` — PWA 설치용 매니페스트와 아이콘
 - `sw.js` — 오프라인 캐시용 서비스 워커
+
+## 수정하고 다시 배포하기
+- 작업 브랜치: `main` (원본) → 배포 브랜치: `gh-pages` (GitHub Pages가 이 브랜치를 서빙)
+- 수정 후 `git push origin main main:gh-pages` 를 하면 1분 안에 사이트에 반영됩니다.
+- 아이콘은 `python3 make_icons.py` 로 다시 만들 수 있습니다(192·180·512).
